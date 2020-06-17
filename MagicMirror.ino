@@ -20,14 +20,17 @@ void setup()
   displayManager.setBrightness(0);
   delay(1000);
 }
- 
- 
+
 void loop()
 {
- for(numCounter = 0; numCounter < 1000; numCounter++) //Iterate numCounter
- {
+  displayManager.loop();
+
+  //displayManager.animate();
+  if (!displayManager.isAnimating()) {
     displayManager.showNumberDec(numCounter, true); //Display the numCounter value;
-  
-  delay(1000);
- }
+    
+    delay(1000);
+
+    numCounter++;
+  }
 }

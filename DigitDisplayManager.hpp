@@ -1,6 +1,9 @@
 #define ORIENTATION_NORMAL 1
 #define ORIENTATION_INVERSE -1
 
+#define ANIMATION_HIDE 1
+#define ANIMATION_SHOW 2
+
 const uint8_t digitToSegment[] = {
  // XGFEDCBA
   0b00111111,    // 0
@@ -27,6 +30,8 @@ private:
 
   uint8_t currentValue[4] = { 0x0, 0x0, 0x0, 0x0 };
 
+  uint8_t nextValue[4] = { 0x0, 0x0, 0x0, 0x0 };
+
   const uint8_t emptyValue[4] = { 0x0, 0x0, 0x0, 0x0 };
 
   uint8_t brightness = 0;
@@ -36,6 +41,33 @@ private:
   bool dots = false;
 
   unsigned int transition = 0;
+
+  bool bIsAnimating = false;
+
+  unsigned int animationStart = 0;
+
+  unsigned int animationStep = 0;
+
+  unsigned int animationLastStepTime = 0;
+
+  char animationType = 0;
+
+  void applyNextValue() {
+    for(int i = 0; i < 4; i++) {
+      if (this->dots) {
+        this->nextValue[i] = (0b10000000 | this->nextValue[i]);
+      } else {
+        this->nextValue[i] = (0b01111111 & this->nextValue[i]);
+      }
+    }
+
+    this->currentValue[0] = this->nextValue[0];
+    this->currentValue[1] = this->nextValue[1];
+    this->currentValue[2] = this->nextValue[2];
+    this->currentValue[3] = this->nextValue[3];
+
+    this->update();
+  }
 
 public:
   DigitDisplayManager(const int clkPin, const int dioPin) : display(clkPin, dioPin) {
@@ -68,7 +100,68 @@ public:
     this->update();
   }
 
+  bool isAnimating() {
+    return this->bIsAnimating;
+  }
+
+  void loop() {
+    if (!this->isAnimating()) {
+      return;
+    }
+
+    if (millis() - this->animationLastStepTime > (this->transition / 7)) {
+      if (this->animationType == ANIMATION_HIDE) {
+        this->setBrightness(this->animationStep);
+
+        if (this->animationStep <= 0) {
+          display.setSegments(this->emptyValue);
+          this->applyNextValue();
+
+          this->animationType = ANIMATION_SHOW;
+          this->animationLastStepTime = millis();
+          this->animationStep = 1;
+          return;
+        }
+
+        this->animationLastStepTime = millis();
+        this->animationStep -= 1;
+        return;
+      }
+      
+      if (this->animationType == ANIMATION_SHOW) {
+        this->setBrightness(this->animationStep);
+
+        if (this->animationStep >= 7) {
+          this->bIsAnimating = false;
+          this->animationType = 0;
+          this->animationLastStepTime = millis();
+          this->animationStep = 0;
+          return;
+        }
+
+        this->animationLastStepTime = millis();
+        this->animationStep += 1;
+        return;
+      }
+    }
+  }
+
+  void animate() {
+    while(this->isAnimating()) {
+      this->loop();
+      delay((this->transition / 7) + 1);
+    }
+  }
+
   void setSegments(const uint8_t data[4]) {
+    if (this->transition) {
+      this->bIsAnimating = true;
+      this->animationStep = 7;
+      this->animationStart = millis();
+      this->animationType = ANIMATION_HIDE;
+      this->animationLastStepTime = this->animationStart;
+    }
+    /*
     if (this->transition) {
       unsigned int stepTime = (this->transition / 7);
 
@@ -78,34 +171,26 @@ public:
       }
 
       display.setSegments(this->emptyValue);
-    }
-    
+    }*/
+
     if (this->orientation) {
-      this->currentValue[0] = data[0];
-      this->currentValue[1] = data[1];
-      this->currentValue[2] = data[2];
-      this->currentValue[3] = data[3];
+      this->nextValue[0] = data[0];
+      this->nextValue[1] = data[1];
+      this->nextValue[2] = data[2];
+      this->nextValue[3] = data[3];
     } else {
       uint8_t d1 = this->invertDigit(data[3]);
       uint8_t d2 = this->invertDigit(data[2]);
       uint8_t d3 = this->invertDigit(data[1]);
       uint8_t d4 = this->invertDigit(data[0]);
       
-      this->currentValue[0] = d1;
-      this->currentValue[1] = d2;
-      this->currentValue[2] = d3;
-      this->currentValue[3] = d4;
+      this->nextValue[0] = d1;
+      this->nextValue[1] = d2;
+      this->nextValue[2] = d3;
+      this->nextValue[3] = d4;
     }
-
-    for(int i = 0; i < 4; i++) {
-      if (this->dots) {
-        this->currentValue[i] = (0b10000000 | this->currentValue[i]);
-      } else {
-        this->currentValue[i] = (0b01111111 & this->currentValue[i]);
-      }
-    }
-    
-    this->update();
+/*
+    this->applyNextValue();
 
     if (this->transition) {
       unsigned int stepTime = (this->transition / 7);
@@ -114,7 +199,7 @@ public:
         this->setBrightness(i);
         delay(stepTime);
       }
-    }
+    }*/
   }
 
   void showNumberDec(unsigned int num, bool leadingZero = false) {

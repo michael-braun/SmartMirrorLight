@@ -4,9 +4,7 @@
 #include "./RasterizerClient.hpp"
 #include "./OpenWeatherClient.hpp"
 #include "./WeatherDisplay.hpp"
-
-#define WIFI_SSID ""
-#define WIFI_PASSWORD ""
+#include "./Configuration.hpp"
  
 const int CLK = D6; //Set the CLK pin connection to the display
 const int DIO = D5; //Set the DIO pin connection to the display

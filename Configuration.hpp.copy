@@ -3,3 +3,4 @@
 #define OPEN_WEATHER_APP_ID ""
 #define OPEN_WEATHER_ZIP ""
 #define RASTERIZR_SERVER ""
+#define TIME_ZONE_OFFSET 0

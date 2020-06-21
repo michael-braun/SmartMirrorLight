@@ -1,2 +1,5 @@
 #define WIFI_SSID ""
 #define WIFI_PASSWORD ""
+#define OPEN_WEATHER_APP_ID ""
+#define OPEN_WEATHER_ZIP ""
+#define RASTERIZR_SERVER ""

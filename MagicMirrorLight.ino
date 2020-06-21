@@ -12,8 +12,8 @@ const int DIO = D5; //Set the DIO pin connection to the display
 int numCounter = 0;
  
 DigitDisplayManager digitDisplayManager(CLK, DIO); //set up the 4-Digit Display.
-OpenWeatherClient openWeatherClient = { "02bc89509cf1377c5c9b8de86a36ded4", "48683,de" };
-RasterizerClient rasterizerClient = { "http://192.168.178.10:9007" };
+OpenWeatherClient openWeatherClient = { OPEN_WEATHER_APP_ID, OPEN_WEATHER_ZIP };
+RasterizerClient rasterizerClient = { RASTERIZR_SERVER };
 WeatherDisplay weatherDisplay = { &openWeatherClient, &rasterizerClient };
  
 void setup()

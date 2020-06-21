@@ -25,8 +25,8 @@ public:
     }
   }
 
-  const char* getBitmap() const {
-    return this->data;
+  const uint8_t* getBitmap() const {
+    return (const uint8_t*) this->data;
   }
 
   void draw(DisplayManager& displayManager, int16_t x, int16_t y, uint16_t color) const {
@@ -49,7 +49,7 @@ private:
     HTTPClient http;
 
     http.collectHeaders(HEADER_KEYS, HEADER_COUNT);
-    
+
     http.begin(url);
     int httpCode = http.GET();
     int bodySize = http.getSize();

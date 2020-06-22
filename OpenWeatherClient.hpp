@@ -79,6 +79,14 @@ std::unordered_map<int, const char*> WEATHER_ICON_MAPPINGS = {
     { 962, "cloudy-gusts" }
 };
 
+String getWeatherIcons(int code) {
+  if (!(code > 699 && code < 800) && !(code > 899 && code < 1000)) {
+    return String("wi-day-") + WEATHER_ICON_MAPPINGS[code];
+  }
+  
+  return String("wi-") +          WEATHER_ICON_MAPPINGS[code];
+}
+
 class OpenWeatherClient {
 private:
   String appid;

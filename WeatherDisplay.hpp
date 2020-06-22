@@ -19,7 +19,7 @@ public:
   }
 
   void update() {
-    auto* data = rasterizerClient->getIcon("weather-icons", (String("wi-") + WEATHER_ICON_MAPPINGS[openWeatherClient->getIconId()]).c_str(), 60);
+    auto* data = rasterizerClient->getIcon("weather-icons", (getWeatherIcons(openWeatherClient->getIconId())).c_str(), 60);
     data->draw(displayManager, 0, 0, WHITE);
 
     FontOptions options {

@@ -3,7 +3,7 @@
 
 class WeatherDisplay {
 private:
-  DisplayManager displayManager;
+  DisplayManager displayManager = { 128, 64 };
   const OpenWeatherClient* openWeatherClient;
   const RasterizerClient* rasterizerClient;
 

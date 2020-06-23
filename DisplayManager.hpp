@@ -61,6 +61,10 @@ public:
     this->display->drawCircle(x, y, radius, color);
   }
 
+  void drawRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color) {
+    this->display->drawRect(x, y, w, h, color);
+  }
+
   void setText(int16_t x, int16_t y, const char* data, const FontOptions* fontOptions) {
     this->display->setTextColor(fontOptions->fontColor);
     this->display->setTextSize(fontOptions->fontSize);

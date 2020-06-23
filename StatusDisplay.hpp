@@ -42,22 +42,28 @@ public:
     return -1;
   }
 
-  void add(RasterizerData* value) {
+  bool add(RasterizerData* value) {
     int idx = this->findIndex(value->getLibrary(), value->getIconName());
 
     if (idx != -1) {
-      return;
+      return false;
+    }
+
+    if (dataLength >= 4) {
+      return false;
     }
     
     this->data[dataLength] = value;
     dataLength += 1;
+
+    return true;
   }
 
-  void remove(const char* libraryName, const char* iconName) {
+  bool remove(const char* libraryName, const char* iconName) {
     int idx = this->findIndex(libraryName, iconName);
 
     if (idx == -1) {
-      return;
+      return false;
     }
 
     delete this->data[idx];
@@ -70,6 +76,8 @@ public:
     }
 
     this->dataLength -= 1;
+
+    return true;
   }
 
   void update() {

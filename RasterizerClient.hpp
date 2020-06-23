@@ -9,8 +9,8 @@ private:
   char* data;
   int width;
   int height;
-  const char* library;
-  const char* iconName;
+  String library;
+  String iconName;
 
 public:
   RasterizerData(int length, WiFiClient& client, int width, int height, const char* library, const char* iconName) {
@@ -38,11 +38,11 @@ public:
   }
 
   const char* getLibrary() const {
-    return this->library;
+    return this->library.c_str();
   }
 
   const char* getIconName() const {
-    return this->iconName;
+    return this->iconName.c_str();
   }
 
   void draw(DisplayManager& displayManager, int16_t x, int16_t y, uint16_t color) const {

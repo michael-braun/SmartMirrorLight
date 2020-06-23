@@ -49,6 +49,10 @@ public:
     this->display->display();
   }
 
+  void command(uint8_t c) {
+    this->display->ssd1306_command(c);
+  }
+
   void drawBitmap(int16_t x, int16_t y, const char bitmap[], int16_t width, int16_t height, uint16_t color) {
     this->drawBitmap(x, y, (const uint8_t*) bitmap, width, height, color);
   }

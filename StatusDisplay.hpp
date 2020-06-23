@@ -17,17 +17,7 @@ public:
     displayManager.setup();
     displayManager.clear();
 
-    auto* sunny = rasterizerClient->getIcon("weather-icons", "wi-day-sunny", 32);
-    this->add(sunny);
-
-    auto* rain = rasterizerClient->getIcon("weather-icons", "wi-rain", 32);
-    this->add(rain);
-
     this->update();
-
-    delay(1000);
-
-    this->remove("weather-icons", "wi-day-sunny");
   }
 
   int findIndex(const char* libraryName, const char* iconName) {

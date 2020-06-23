@@ -7,11 +7,14 @@
 #include "./OpenWeatherClient.hpp"
 #include "./WeatherDisplay.hpp"
 #include "./ClockDisplay.hpp"
+#include "./StatusDisplay.hpp"
+
 
 OpenWeatherClient openWeatherClient = { OPEN_WEATHER_APP_ID, OPEN_WEATHER_ZIP };
 RasterizerClient rasterizerClient = { RASTERIZR_SERVER };
-WeatherDisplay weatherDisplay = { &openWeatherClient, &rasterizerClient };
+//WeatherDisplay weatherDisplay = { &openWeatherClient, &rasterizerClient };
 ClockDisplay clockDisplay;
+StatusDisplay statusDisplay = { &rasterizerClient };
  
 void setup()
 {
@@ -28,10 +31,12 @@ void setup()
 
   clockDisplay.setup();
 
-  weatherDisplay.setup();
+  //weatherDisplay.setup();
+  statusDisplay.setup();
+  statusDisplay.update();
 
   openWeatherClient.update();
-  weatherDisplay.update();
+  //weatherDisplay.update();
 }
 
 unsigned int lastUpdate = 0;
@@ -39,6 +44,7 @@ unsigned int lastUpdate = 0;
 void loop()
 {
   clockDisplay.loop();
+  statusDisplay.loop();
 
   delay(100);
 }

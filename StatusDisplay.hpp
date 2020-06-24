@@ -17,6 +17,8 @@ public:
     displayManager.setup();
     displayManager.clear();
 
+    this->add(rasterizerClient->getIcon("weather-icons", "wi-day-sunny", 32));
+
     this->update();
   }
 
@@ -81,6 +83,10 @@ public:
     }
     
     displayManager.rerender();
+  }
+
+  void setTCAPort(uint8_t port) {
+    this->displayManager.setTCAPort(port);
   }
 
   void loop() {

@@ -11,10 +11,9 @@
 #include "./ClockDisplay.hpp"
 #include "./StatusDisplay.hpp"
 
-
 OpenWeatherClient openWeatherClient = { OPEN_WEATHER_APP_ID, OPEN_WEATHER_ZIP };
 RasterizerClient rasterizerClient = { RASTERIZR_SERVER };
-//WeatherDisplay weatherDisplay = { &openWeatherClient, &rasterizerClient };
+WeatherDisplay weatherDisplay = { &openWeatherClient, &rasterizerClient };
 ClockDisplay clockDisplay;
 StatusDisplay statusDisplay = { &rasterizerClient };
 
@@ -68,6 +67,8 @@ void setup()
 {
   Serial.begin(9600);
 
+  Wire.begin(D3, D4);
+
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
      
   while (WiFi.status() != WL_CONNECTED) {
@@ -82,12 +83,15 @@ void setup()
 
   clockDisplay.setup();
 
-  //weatherDisplay.setup();
+  openWeatherClient.update();
+
+  statusDisplay.setTCAPort(0);
   statusDisplay.setup();
   statusDisplay.update();
 
-  openWeatherClient.update();
-  //weatherDisplay.update();
+  weatherDisplay.setTCAPort(1);
+  weatherDisplay.setup();
+  weatherDisplay.update();
 
   server.begin();
 }
@@ -99,6 +103,7 @@ void loop()
   server.handleClient();
   clockDisplay.loop();
   statusDisplay.loop();
+  weatherDisplay.loop();
 
   delay(100);
 }

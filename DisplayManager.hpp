@@ -10,6 +10,16 @@
 #define TEXT_ALIGN_CENTER 2
 #define TEXT_ALIGN_RIGHT 3
 
+void tcaselect(uint8_t i) {
+  Wire.begin(D3, D4);
+  
+  if (i > 7) return;
+ 
+  Wire.beginTransmission(0x70);
+  Wire.write(1 << i);
+  Wire.endTransmission();  
+}
+
 class FontOptions {
 public:
   const GFXfont* font;
@@ -29,6 +39,7 @@ public:
 class DisplayManager {
 private:
   Adafruit_SSD1306* display;
+  int16_t tcaPort = -1;
 
 public:
   DisplayManager(int screenWidth, int screenHeight) {
@@ -36,6 +47,7 @@ public:
   }
 
   void setup() {
+    this->updateTCAPort();
     this->display->begin(SSD1306_SWITCHCAPVCC, 0x3C);
     this->display->display();
   }
@@ -46,30 +58,47 @@ public:
   }
 
   void rerender() {
+    this->updateTCAPort();
     this->display->display();
   }
 
   void command(uint8_t c) {
+    this->updateTCAPort();
     this->display->ssd1306_command(c);
   }
 
   void drawBitmap(int16_t x, int16_t y, const char bitmap[], int16_t width, int16_t height, uint16_t color) {
+    this->updateTCAPort();
     this->drawBitmap(x, y, (const uint8_t*) bitmap, width, height, color);
   }
 
   void drawBitmap(int16_t x, int16_t y, const uint8_t bitmap[], int16_t width, int16_t height, uint16_t color) {
+    this->updateTCAPort();
     this->display->drawBitmap(x, y, bitmap, width, height, color);
   }
 
   void drawCircle(int16_t x, int16_t y, uint16_t radius, uint16_t color) {
+    this->updateTCAPort();
     this->display->drawCircle(x, y, radius, color);
   }
 
   void drawRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color) {
+    this->updateTCAPort();
     this->display->drawRect(x, y, w, h, color);
   }
 
+  void setTCAPort(uint8_t port) {
+    this->tcaPort = port;
+  }
+
+  void updateTCAPort() {
+    if (tcaPort != -1) {
+      tcaselect(tcaPort);
+    }
+  }
+
   void setText(int16_t x, int16_t y, const char* data, const FontOptions* fontOptions) {
+    this->updateTCAPort();
     this->display->setTextColor(fontOptions->fontColor);
     this->display->setTextSize(fontOptions->fontSize);
 

@@ -39,4 +39,12 @@ public:
     displayManager.rerender();
     delete data;
   }
+
+  void setTCAPort(uint8_t port) {
+    this->displayManager.setTCAPort(port);
+  }
+
+  void loop() {
+    
+  }
 };

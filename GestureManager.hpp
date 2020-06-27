@@ -1,8 +1,9 @@
 #include <SparkFun_APDS9960.h>
+#include "./TCASelectHelper.hpp"
 
 using f_void_t = void(*)();
 
-class GestureManager {
+class GestureManager : public TCASelectHelper {
 private:
   SparkFun_APDS9960 apds = SparkFun_APDS9960();
 
@@ -39,6 +40,8 @@ public:
   }
 
   void setup() {
+    this->updateTCAPort();
+    
     if ( apds.init() ) {
       Serial.println(F("APDS-9960 initialization complete"));
     } else {
@@ -53,7 +56,6 @@ public:
   }
 
   void loop() {
-    Serial.println("loop");
     if ( apds.isGestureAvailable() ) {
       Serial.println("gesture available");
       Serial.println(apds.readGesture());

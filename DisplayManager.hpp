@@ -2,44 +2,15 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include "./TCASelectHelper.hpp"
+#include "./FontOptions.hpp"
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 #define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
 
-#define TEXT_ALIGN_LEFT 1
-#define TEXT_ALIGN_CENTER 2
-#define TEXT_ALIGN_RIGHT 3
-
-void tcaselect(uint8_t i) {
-  Wire.begin(D3, D4);
-  
-  if (i > 7) return;
- 
-  Wire.beginTransmission(0x70);
-  Wire.write(1 << i);
-  Wire.endTransmission();  
-}
-
-class FontOptions {
-public:
-  const GFXfont* font;
-  uint8_t fontSize;
-  uint8_t fontColor;
-  char textAlign;
-
-public:
-  FontOptions(const GFXfont *font = NULL, uint8_t size = 1, uint16_t color = WHITE, char textAlign = TEXT_ALIGN_LEFT) {
-    this->font = font;
-    this->fontSize = size;
-    this->fontColor = color;
-    this->textAlign = textAlign;
-  }
-};
-
-class DisplayManager {
+class DisplayManager : public TCASelectHelper {
 private:
   Adafruit_SSD1306* display;
-  int16_t tcaPort = -1;
 
 public:
   DisplayManager(int screenWidth, int screenHeight) {
@@ -85,16 +56,6 @@ public:
   void drawRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color) {
     this->updateTCAPort();
     this->display->drawRect(x, y, w, h, color);
-  }
-
-  void setTCAPort(uint8_t port) {
-    this->tcaPort = port;
-  }
-
-  void updateTCAPort() {
-    if (tcaPort != -1) {
-      tcaselect(tcaPort);
-    }
   }
 
   void setText(int16_t x, int16_t y, const char* data, const FontOptions* fontOptions) {

@@ -21,7 +21,7 @@ OpenWeatherClient openWeatherClient = { OPEN_WEATHER_APP_ID, OPEN_WEATHER_ZIP };
 RasterizerClient rasterizerClient = { RASTERIZR_SERVER };
 WeatherDisplay weatherDisplay = { &openWeatherClient, &rasterizerClient };
 ClockDisplay clockDisplay;
-//GestureManager gestureManager;
+GestureManager gestureManager;
 StatusDisplay statusDisplay = { &rasterizerClient };
 
 DynamicJsonDocument doc(2048);
@@ -106,43 +106,21 @@ void setup()
   weatherDisplay.setup();
   weatherDisplay.update();
 
+  gestureManager.setTCAPort(2);
+  gestureManager.setup();
+
   server.begin();
-
-  Wire.beginTransmission(0x70);
-  Wire.write(1 << 2);
-  Wire.endTransmission();  
-  
-  if ( apds.init() ) {
-    Serial.println(F("APDS-9960 initialization complete"));
-  } else {
-    Serial.println(F("Something went wrong during APDS-9960 init!"));
-  }
-
-  if ( apds.enableGestureSensor(true) ) {
-    Serial.println(F("Gesture sensor is now running"));
-  } else {
-    Serial.println(F("Something went wrong during gesture sensor init!"));
-  }
 }
 
 unsigned int lastUpdate = 0;
 
 void loop()
 {
-
-  Wire.beginTransmission(0x70);
-  Wire.write(1 << 2);
-  Wire.endTransmission();  
-
-  if ( apds.isGestureAvailable() ) {
-      Serial.println("gesture available");
-      Serial.println(apds.readGesture());
-  }
-  
   server.handleClient();
   clockDisplay.loop();
   statusDisplay.loop();
   weatherDisplay.loop();
+  gestureManager.loop();
 
   delay(100);
 }

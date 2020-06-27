@@ -1,5 +1,6 @@
 #include <TM1637Display.h>
 #include <SparkFun_APDS9960.h>
+#include <Wire.h>
 
 #include "./GestureManager.hpp"
 
@@ -107,6 +108,10 @@ void setup()
 
   server.begin();
 
+  Wire.beginTransmission(0x70);
+  Wire.write(1 << 2);
+  Wire.endTransmission();  
+  
   if ( apds.init() ) {
     Serial.println(F("APDS-9960 initialization complete"));
   } else {
@@ -124,20 +129,20 @@ unsigned int lastUpdate = 0;
 
 void loop()
 {
+
+  Wire.beginTransmission(0x70);
+  Wire.write(1 << 2);
+  Wire.endTransmission();  
+
   if ( apds.isGestureAvailable() ) {
       Serial.println("gesture available");
       Serial.println(apds.readGesture());
-      }
+  }
   
-  Serial.println("loop 1");
   server.handleClient();
-  Serial.println("loop 2");
   clockDisplay.loop();
-  Serial.println("loop 3");
   statusDisplay.loop();
-  Serial.println("loop 4");
   weatherDisplay.loop();
-  Serial.println("loop 5");
 
   delay(100);
 }

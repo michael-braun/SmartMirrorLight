@@ -16,6 +16,7 @@
 #include "./WeatherDisplay.hpp"
 #include "./ClockDisplay.hpp"
 #include "./StatusDisplay.hpp"
+#include "./SimpleOTA.hpp"
 
 OpenWeatherClient openWeatherClient = { OPEN_WEATHER_APP_ID, OPEN_WEATHER_ZIP };
 RasterizerClient rasterizerClient = { RASTERIZR_SERVER };
@@ -23,6 +24,8 @@ WeatherDisplay weatherDisplay = { &openWeatherClient, &rasterizerClient };
 ClockDisplay clockDisplay;
 GestureManager gestureManager;
 StatusDisplay statusDisplay = { &rasterizerClient };
+
+SimpleOTA ota { "v1.0.0" };
 
 DynamicJsonDocument doc(2048);
 
@@ -121,6 +124,8 @@ void setup()
   gestureManager.setOnRight(handleRight);
   gestureManager.setup();
 
+  ota.setup();
+
   server.begin();
 }
 
@@ -133,6 +138,7 @@ void loop()
   statusDisplay.loop();
   weatherDisplay.loop();
   gestureManager.loop();
+  ota.loop();
 
   delay(100);
 }

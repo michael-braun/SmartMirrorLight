@@ -1,3 +1,4 @@
+#include "./SSD1306DisplayManager.hpp"
 #include "./RasterizerClient.hpp"
 
 class StatusDisplay {
@@ -5,7 +6,7 @@ private:
   RasterizerData* data[4] = { NULL, NULL, NULL, NULL };
   int dataLength = 0;
 
-  DisplayManager displayManager = { 128, 32 };
+  SSD1306DisplayManager displayManager = { 128, 32 };
   const RasterizerClient* rasterizerClient;
 
 public:
@@ -91,6 +92,14 @@ public:
 
   void loop() {
     
+  }
+
+  void enable() {
+    this->update();
+  }
+
+  void disable() {
+    this->displayManager.clear();
   }
 
   ~StatusDisplay() {

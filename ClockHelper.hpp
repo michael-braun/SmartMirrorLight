@@ -21,7 +21,7 @@ public:
   }
 
   int getEpochTime() const {
-    return this->timeClient->getEpochTime();
+    return this->timeClient->getEpochTime() + (TIME_ZONE_OFFSET * 3600);
   }
 
   ~ClockHelper() {

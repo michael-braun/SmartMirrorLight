@@ -56,51 +56,51 @@ public:
   }
 
   void loop() {
+    this->updateTCAPort();
+    
     if ( apds.isGestureAvailable() ) {
       Serial.println("gesture available");
-      Serial.println(apds.readGesture());
-//      switch ( apds.readGesture() ) {
-//        case DIR_UP:
-//          Serial.println("up");
-//          if (this->onUp != NULL) {
-//            this->onUp();
-//          }
-//          break;
-//        case DIR_DOWN:
-//          Serial.println("down");
-//          if (this->onDown != NULL) {
-//            this->onDown();
-//          }
-//          break;
-//        case DIR_LEFT:
-//          Serial.println("left");
-//          if (this->onLeft != NULL) {
-//            this->onLeft();
-//          }
-//          break;
-//        case DIR_RIGHT:
-//          Serial.println("right");
-//          if (this->onRight != NULL) {
-//            this->onRight();
-//          }
-//          break;
-//        case DIR_NEAR:
-//          Serial.println("near");
-//          if (this->onNear != NULL) {
-//            this->onNear();
-//          }
-//          break;
-//        case DIR_FAR:
-//          Serial.println("far");
-//          if (this->onFar != NULL) {
-//            this->onFar();
-//          }
-//          break;
-//        default:
-//          Serial.println("none");
-//          break;
-//      }
-//      Serial.println("end available");
+      switch ( apds.readGesture() ) {
+        case DIR_UP:
+          Serial.println("up");
+          if (this->onUp != NULL) {
+            this->onUp();
+          }
+          break;
+        case DIR_DOWN:
+          Serial.println("down");
+          if (this->onDown != NULL) {
+            this->onDown();
+          }
+          break;
+        case DIR_LEFT:
+          Serial.println("left");
+          if (this->onLeft != NULL) {
+            this->onLeft();
+          }
+          break;
+        case DIR_RIGHT:
+          Serial.println("right");
+          if (this->onRight != NULL) {
+            this->onRight();
+          }
+          break;
+        case DIR_NEAR:
+          Serial.println("near");
+          if (this->onNear != NULL) {
+            this->onNear();
+          }
+          break;
+        case DIR_FAR:
+          Serial.println("far");
+          if (this->onFar != NULL) {
+            this->onFar();
+          }
+          break;
+        default:
+          Serial.println("none");
+          break;
+      }
     }
   }
 };

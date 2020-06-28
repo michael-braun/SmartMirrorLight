@@ -3,6 +3,8 @@
 
 #define ANIMATION_HIDE 1
 #define ANIMATION_SHOW 2
+#define ANIMATION_DISABLE 4
+#define ANIMATION_ENABLE 8
 
 const uint8_t digitToSegment[] = {
  // XGFEDCBA
@@ -52,6 +54,8 @@ private:
 
   char animationType = 0;
 
+  boolean bIsEnabled = true;
+
   void applyNextValue() {
     for(int i = 0; i < 4; i++) {
       if (this->dots) {
@@ -71,6 +75,30 @@ private:
 
 public:
   DigitDisplayManager(const int clkPin, const int dioPin) : display(clkPin, dioPin) {
+  }
+
+  void disable() {
+    this->bIsEnabled = false;
+    
+    if (this->transition) {
+      this->bIsAnimating = true;
+      this->animationStep = 7;
+      this->animationStart = millis();
+      this->animationType = ANIMATION_DISABLE;
+      this->animationLastStepTime = this->animationStart;
+    }
+  }
+
+  void enable() {
+    this->bIsEnabled = true;
+    
+    if (this->transition) {
+      this->bIsAnimating = true;
+      this->animationStep = 1;
+      this->animationStart = millis();
+      this->animationType = ANIMATION_SHOW;
+      this->animationLastStepTime = this->animationStart;
+    }
   }
 
   void update() {
@@ -110,16 +138,23 @@ public:
     }
 
     if (millis() - this->animationLastStepTime > (this->transition / 7)) {
-      if (this->animationType == ANIMATION_HIDE) {
+      if (this->animationType == ANIMATION_HIDE || this->animationType == ANIMATION_DISABLE) {
         this->setBrightness(this->animationStep);
 
         if (this->animationStep <= 0) {
           display.setSegments(this->emptyValue);
-          this->applyNextValue();
 
-          this->animationType = ANIMATION_SHOW;
-          this->animationLastStepTime = millis();
-          this->animationStep = 1;
+          if (this->animationType == ANIMATION_HIDE) {
+            this->applyNextValue();
+  
+            this->animationType = ANIMATION_SHOW;
+            this->animationLastStepTime = millis();
+            this->animationStep = 1;
+          }
+
+          if (this->animationType == ANIMATION_DISABLE) {
+            this->bIsAnimating = false;
+          }
           return;
         }
 
@@ -128,7 +163,7 @@ public:
         return;
       }
       
-      if (this->animationType == ANIMATION_SHOW) {
+      if (this->animationType == ANIMATION_SHOW || this->animationType == ANIMATION_ENABLE) {
         this->setBrightness(this->animationStep);
 
         if (this->animationStep >= 7) {
@@ -154,24 +189,13 @@ public:
   }
 
   void setSegments(const uint8_t data[4]) {
-    if (this->transition) {
+    if (this->transition && this->bIsEnabled) {
       this->bIsAnimating = true;
       this->animationStep = 7;
       this->animationStart = millis();
       this->animationType = ANIMATION_HIDE;
       this->animationLastStepTime = this->animationStart;
     }
-    /*
-    if (this->transition) {
-      unsigned int stepTime = (this->transition / 7);
-
-      for(int i = 7; i >= 0; i--) {
-        this->setBrightness(i);
-        delay(stepTime);
-      }
-
-      display.setSegments(this->emptyValue);
-    }*/
 
     if (this->orientation) {
       this->nextValue[0] = data[0];
@@ -189,17 +213,6 @@ public:
       this->nextValue[2] = d3;
       this->nextValue[3] = d4;
     }
-/*
-    this->applyNextValue();
-
-    if (this->transition) {
-      unsigned int stepTime = (this->transition / 7);
-      
-      for(int i = 0; i <= 7; i++) {
-        this->setBrightness(i);
-        delay(stepTime);
-      }
-    }*/
   }
 
   void showNumberDec(unsigned int num, bool leadingZero = false) {

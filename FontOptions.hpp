@@ -1,6 +1,9 @@
 #ifndef FONT_OPTIONS_H
 #define FONT_OPTIONS_H
 
+#include <Adafruit_SSD1306.h>
+#include <Adafruit_GFX.h>
+
 #define TEXT_ALIGN_LEFT 1
 #define TEXT_ALIGN_CENTER 2
 #define TEXT_ALIGN_RIGHT 3

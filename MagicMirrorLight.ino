@@ -73,7 +73,17 @@ void handleRemove() {
 }
 
 void handleLeft() {
+  clockDisplay.disable();
+  statusDisplay.disable();
+  weatherDisplay.disable();
   Serial.println("LEFT");
+}
+
+void handleRight() {
+  clockDisplay.enable();
+  statusDisplay.enable();
+  weatherDisplay.enable();
+  Serial.println("RIGHT");
 }
  
 void setup()
@@ -107,6 +117,8 @@ void setup()
   weatherDisplay.update();
 
   gestureManager.setTCAPort(2);
+  gestureManager.setOnLeft(handleLeft);
+  gestureManager.setOnRight(handleRight);
   gestureManager.setup();
 
   server.begin();

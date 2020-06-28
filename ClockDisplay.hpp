@@ -10,6 +10,7 @@ private:
   ClockHelper clockHelper;
   int lastClock = 0;
   unsigned int lastUpdate = 0;
+  boolean enabled = true;
 
 public:
   void setup() {
@@ -22,10 +23,33 @@ public:
     digitDisplayManager.setBrightness(0);
   }
 
+  void disable() {
+    this->enabled = false;
+    digitDisplayManager.disable();
+  }
+
+  void enable() {
+    clockHelper.loop();
+
+    int epoch = clockHelper.getEpochTime();
+    int hours = ((epoch % 86400L) / 3600);
+    int minutes = ((epoch % 3600) / 60);
+
+    int newClock = hours * 100 + minutes;
+  
+    digitDisplayManager.showNumberDec(newClock, true); //Display the numCounter value;
+    digitDisplayManager.animate();
+
+    lastClock = newClock;
+
+    digitDisplayManager.enable();
+    this->enabled = true;
+  }
+
   void loop() {
     digitDisplayManager.loop();
     
-    if (!digitDisplayManager.isAnimating() && (millis() - lastUpdate) > 10000) {
+    if (this->enabled && !digitDisplayManager.isAnimating() && (millis() - lastUpdate) > 10000) {
       clockHelper.loop();
       
       int epoch = clockHelper.getEpochTime();

@@ -11,6 +11,8 @@ private:
 
   unsigned long lastUpdate = 0;
 
+  boolean bIsDisabled = false;
+
 public:
   StatusDisplay(const RasterizerClient* rasterizerClient) {
     this->rasterizerClient = rasterizerClient;
@@ -82,7 +84,7 @@ public:
     int x = (128 - (this->dataLength * 32)) / 2;
     for (int i = 0; i < 4; i++) {
       if (data[i] != NULL) {
-        data[i]->draw(displayManager, x + (i * 32), 0, WHITE);
+        data[i]->draw(displayManager, x + (i * 32) + 4, 4, WHITE);
       }
     }
     
@@ -94,10 +96,7 @@ public:
   }
 
   void loop() {
-    Serial.print("looping: ");
-    Serial.println(millis() - this->lastUpdate);
-    
-    if ((millis() - this->lastUpdate) < 10000) {
+    if (this->bIsDisabled || (millis() - this->lastUpdate) < 10000) {
       return;
     }
 
@@ -143,7 +142,7 @@ public:
 
         serializeJson(doc[i], Serial);
 
-        auto* rasterizerData = this->rasterizerClient->getIcon(library.c_str(), iconName.c_str(), 32);
+        auto* rasterizerData = this->rasterizerClient->getIcon(library.c_str(), iconName.c_str(), 24);
         this->add(rasterizerData);
       }
       
@@ -157,11 +156,15 @@ public:
   }
 
   void enable() {
+    this->bIsDisabled = false;
     this->update();
   }
 
   void disable() {
+    this->bIsDisabled = true;
     this->displayManager.clear();
+    this->displayManager.rerender();
+    Serial.println("disable");
   }
 
   ~StatusDisplay() {

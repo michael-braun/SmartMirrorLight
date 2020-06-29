@@ -5,7 +5,7 @@ using f_void_t = void(*)();
 
 class GestureManager : public TCASelectHelper {
 private:
-  SparkFun_APDS9960 apds = SparkFun_APDS9960();
+  SparkFun_APDS9960* apds;
 
   f_void_t onLeft = NULL;
   f_void_t onRight = NULL;
@@ -39,16 +39,22 @@ public:
     this->onFar = cb;
   }
 
+  GestureManager() {
+    
+  }
+
   void setup() {
     this->updateTCAPort();
+
+    this->apds = new SparkFun_APDS9960();
     
-    if ( apds.init() ) {
+    if ( apds->init() ) {
       Serial.println(F("APDS-9960 initialization complete"));
     } else {
       Serial.println(F("Something went wrong during APDS-9960 init!"));
     }
   
-    if ( apds.enableGestureSensor(true) ) {
+    if ( apds->enableGestureSensor(true) ) {
       Serial.println(F("Gesture sensor is now running"));
     } else {
       Serial.println(F("Something went wrong during gesture sensor init!"));
@@ -58,9 +64,9 @@ public:
   void loop() {
     this->updateTCAPort();
     
-    if ( apds.isGestureAvailable() ) {
+    if ( apds->isGestureAvailable() ) {
       Serial.println("gesture available");
-      switch ( apds.readGesture() ) {
+      switch ( apds->readGesture() ) {
         case DIR_UP:
           Serial.println("up");
           if (this->onUp != NULL) {

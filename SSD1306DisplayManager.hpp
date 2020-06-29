@@ -25,6 +25,7 @@ public:
   }
 
   virtual void clear() {
+    this->updateTCAPort();
     this->display->clearDisplay();
     this->rerender();
   }
@@ -84,11 +85,13 @@ public:
   }
 
   virtual void enable() {
-     display->ssd1306_command(SSD1306_DISPLAYON);
+    this->updateTCAPort();
+    display->ssd1306_command(SSD1306_DISPLAYON);
   }
 
   virtual void disable() {
-     display->ssd1306_command(SSD1306_DISPLAYOFF);
+    this->updateTCAPort();
+    display->ssd1306_command(SSD1306_DISPLAYOFF);
   }
 
   ~SSD1306DisplayManager() {

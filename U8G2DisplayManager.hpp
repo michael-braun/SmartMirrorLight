@@ -1,3 +1,6 @@
+#ifndef U8G2_DISPLAY_MANAGER_H
+#define U8G2_DISPLAY_MANAGER_H
+
 #include <SPI.h>
 #include <Wire.h>
 #include <U8g2lib.h>
@@ -11,8 +14,15 @@ class U8G2DisplayManager : public DisplayManager {
 private:
   U8G2* display;
 
-public:
-  U8G2DisplayManager(unsigned char type, int screenWidth, int screenHeight) : DisplayManager() {
+  unsigned char type;
+  int screenWidth;
+  int screenHeight;
+
+  void setupDisplay() {
+    Wire.begin(D3, D4);
+
+      this->updateTCAPort();
+    
     Serial.begin(9600);
     Serial.println("use U8G2DisplayManager");
     if (type == U8G2_TYPE_SH1106) {
@@ -24,8 +34,13 @@ public:
     
     if (type == U8G2_TYPE_SSD1306) {
       if (screenWidth == 128 && screenHeight == 64) {
-        Serial.println("use display");
         this->display = new U8G2_SSD1306_128X64_NONAME_F_HW_I2C(U8G2_R0, U8X8_PIN_NONE);
+        return;
+      }
+
+      if (screenWidth == 128 && screenHeight == 32) {
+        Serial.println("64x32");
+        this->display = new U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C(U8G2_R0, U8X8_PIN_NONE);
         return;
       }
     }
@@ -33,8 +48,16 @@ public:
     this->display = new U8G2_SSD1306_128X64_NONAME_F_HW_I2C(U8G2_R0, U8X8_PIN_NONE);
   }
 
+public:
+  U8G2DisplayManager(unsigned char type, int screenWidth, int screenHeight) : DisplayManager() {
+      this->type = type;
+      this->screenWidth = screenWidth;
+      this->screenHeight = screenHeight;
+  }
+
   void setup() {
     this->updateTCAPort();
+    this->setupDisplay();
     this->display->begin();
   }
 
@@ -64,6 +87,7 @@ public:
   }
 
   void drawBitmap(int16_t x, int16_t y, const uint8_t bitmap[], int16_t width, int16_t height, uint16_t color) {
+    Serial.println("draw bitmap");
     this->display->drawBitmap(x, y, (width + 7) / 8, height, bitmap);
   }
 
@@ -105,3 +129,5 @@ public:
     delete this->display;
   }
 };
+
+#endif

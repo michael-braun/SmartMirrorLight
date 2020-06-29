@@ -1,4 +1,4 @@
-#include "./SSD1306DisplayManager.hpp"
+#include "./U8G2DisplayManager.hpp"
 #include "./RasterizerClient.hpp"
 
 class StatusDisplay {
@@ -6,8 +6,10 @@ private:
   RasterizerData* data[4] = { NULL, NULL, NULL, NULL };
   int dataLength = 0;
 
-  SSD1306DisplayManager displayManager = { 128, 32 };
+  U8G2DisplayManager displayManager = { U8G2_TYPE_SSD1306, 128, 32 };
   const RasterizerClient* rasterizerClient;
+
+  unsigned long lastUpdate = 0;
 
 public:
   StatusDisplay(const RasterizerClient* rasterizerClient) {
@@ -18,7 +20,8 @@ public:
     displayManager.setup();
     displayManager.clear();
 
-    this->add(rasterizerClient->getIcon("weather-icons", "wi-day-sunny", 32));
+    //this->add(rasterizerClient->getIcon("weather-icons", "wi-day-sunny", 32));
+    //this->add(rasterizerClient->getIcon("weather-icons", "wi-alien", 32));
 
     this->update();
   }
@@ -74,8 +77,8 @@ public:
   }
 
   void update() {
+    displayManager.updateTCAPort();
     displayManager.clear();
-    
     int x = (128 - (this->dataLength * 32)) / 2;
     for (int i = 0; i < 4; i++) {
       if (data[i] != NULL) {
@@ -91,7 +94,66 @@ public:
   }
 
   void loop() {
+    Serial.print("looping: ");
+    Serial.println(millis() - this->lastUpdate);
     
+    if ((millis() - this->lastUpdate) < 10000) {
+      return;
+    }
+
+    Serial.println("loop update status");
+    
+    HTTPClient http;
+    http.begin("http://192.168.178.22:1880/smart-mirror/icons");
+    int httpCode = http.GET();
+
+    Serial.println(httpCode);
+
+    if (httpCode == 200) {
+      DynamicJsonDocument doc(2048);
+      deserializeJson(doc, http.getStream());
+      serializeJson(doc, Serial);
+      Serial.println("");
+
+      for (int i = 0; i < 4; i++) {
+        if (doc[i].isNull()) {
+          break;
+        }
+
+        if (!doc[i]["library"].is<String>() || !doc[i]["name"].is<String>()) {
+          continue;
+        }
+
+        String library = doc[i]["library"].as<String>();
+        String iconName = doc[i]["name"].as<String>();
+
+        if (this->data[i] != NULL) {
+          if (strcmp(this->data[i]->getLibrary(), library.c_str()) == 0
+            && strcmp(this->data[i]->getIconName(), iconName.c_str()) == 0) {
+            continue;
+          } else {
+            this->remove(this->data[i]->getLibrary(), this->data[i]->getIconName());
+          }
+        }
+
+        int idx = this->findIndex(library.c_str(), iconName.c_str());
+        if (idx != -1) {
+          continue;
+        }
+
+        serializeJson(doc[i], Serial);
+
+        auto* rasterizerData = this->rasterizerClient->getIcon(library.c_str(), iconName.c_str(), 32);
+        this->add(rasterizerData);
+      }
+      
+      this->update();
+    }
+    
+    //Serial.println(payload);
+    http.end();
+
+    this->lastUpdate = millis();
   }
 
   void enable() {
